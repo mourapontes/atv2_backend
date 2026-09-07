@@ -6,7 +6,7 @@ const projectRoutes = require('./project.routes');
 const router = Router();
 
 router.get('/', (req, res) => {
-  res.json({ name: 'DevShowcase API', status: 'ok' });
+  res.json({ name: 'DevShowcase API', status: 'ok', docs: '/api/docs' });
 });
 
 router.use('/profiles', profileRoutes);

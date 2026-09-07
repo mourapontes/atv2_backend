@@ -19,7 +19,7 @@ Feedback.init(
     },
     rating: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       validate: {
         min: { args: [1], msg: 'rating deve ser no mínimo 1.' },
         max: { args: [5], msg: 'rating deve ser no máximo 5.' },

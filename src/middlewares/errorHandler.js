@@ -2,9 +2,14 @@ const { ValidationError, UniqueConstraintError, ForeignKeyConstraintError } = re
 
 /**
  * Middleware central de tratamento de erros.
- * Traduz erros do Sequelize e erros customizados em respostas HTTP apropriadas.
+ * Traduz erros do Sequelize, erros de parsing de JSON e erros customizados em respostas HTTP amigáveis.
  */
 function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
+  // JSON malformado enviado pelo cliente (express.json()).
+  if (err.type === 'entity.parse.failed' || (err instanceof SyntaxError && 'body' in err)) {
+    return res.status(400).json({ message: 'Corpo da requisição contém JSON inválido.' });
+  }
+
   if (err instanceof UniqueConstraintError) {
     return res.status(409).json({
       message: 'Violação de restrição de unicidade.',

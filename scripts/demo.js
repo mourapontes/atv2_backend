@@ -71,28 +71,40 @@ async function main() {
   await call('GET', `/profiles/${profileId}`);
 
   section('2) Technologies — cadastro e listagem');
+  const technologyName = `Node.js-${Date.now()}`;
   const techRes = await call('POST', '/technologies', {
-    name: `Node.js-${Date.now()}`,
+    name: technologyName,
   });
   const technologyId = techRes.data?.id;
 
   await call('GET', '/technologies');
 
   section('3) Projects — cadastro (vinculando profile + technology) e listagem');
-  await call('POST', '/projects', {
+  const projectRes = await call('POST', '/projects', {
     title: 'DevShowcase API',
     description: 'Backend do projeto apresentado em aula',
     repositoryUrl: 'https://github.com/ana/devshowcase',
     profileId,
     technologyIds: technologyId ? [technologyId] : [],
   });
+  const projectId = projectRes.data?.id;
 
   await call('GET', '/projects');
 
   section('4) Relacionamento Profile 1:N Project — o perfil agora lista o projeto criado');
   await call('GET', `/profiles/${profileId}`);
 
-  section('5) Validação de DTOs — exemplos de erro (400)');
+  section('5) Feedbacks — nota (1 a 5) + comentário, recalculando a nota média do projeto');
+  await call('POST', `/projects/${projectId}/feedbacks`, { rating: 5, comment: 'Excelente projeto!' });
+  await call('POST', `/projects/${projectId}/feedbacks`, { rating: 3, comment: 'Bom, mas pode melhorar.' });
+
+  section('6) Upvote — incrementa as curtidas/estrelas do projeto');
+  await call('PUT', `/projects/${projectId}/upvote`);
+
+  section('7) Filtragem por tecnologia e paginação em GET /api/projects');
+  await call('GET', `/projects?technology=${encodeURIComponent(technologyName)}&page=1&limit=5`);
+
+  section('8) Validação de DTOs — exemplos de erro (400)');
   await call('POST', '/profiles', {
     email: 'nao-e-um-email-valido',
   });
@@ -101,6 +113,7 @@ async function main() {
     repositoryUrl: 'nao-e-uma-url',
     profileId: 999999,
   });
+  await call('POST', `/projects/${projectId}/feedbacks`, { rating: 10, comment: 'Nota inválida' });
 
   console.log(paint('bold', paint('green', '\n=== Demonstração concluída ===\n')));
 }

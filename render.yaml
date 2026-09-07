@@ -1,0 +1,23 @@
+# Blueprint do Render (https://render.com/docs/blueprint-spec) para deploy contínuo a partir do GitHub.
+# Ao conectar este repositório no Render (New > Blueprint), o serviço abaixo é criado automaticamente,
+# com deploy automático a cada push na branch configurada.
+services:
+  - type: web
+    name: devshowcase-api
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: node src/server.js
+    healthCheckPath: /api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_SSL
+        value: "true"
+      # DATABASE_URL: definida manualmente no dashboard do Render, apontando para o
+      # PostgreSQL provisionado no Supabase ou no Render PostgreSQL (não versionar credenciais).
+      - key: DATABASE_URL
+        sync: false

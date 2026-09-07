@@ -19,6 +19,23 @@ const createProjectSchema = Joi.object({
   technologyIds: Joi.array().items(Joi.number().integer().positive()).default([]),
 });
 
+// DTO de entrada: parâmetros de query aceitos para listar Projects (filtro + paginação).
+const listProjectsQuerySchema = Joi.object({
+  profileId: Joi.number().integer().positive().messages({
+    'number.base': 'O parâmetro "profileId" deve ser um número.',
+  }),
+  technology: Joi.string().trim().min(1).max(60).messages({
+    'string.empty': 'O parâmetro "technology" não pode ser vazio.',
+  }),
+  page: Joi.number().integer().min(1).default(1).messages({
+    'number.min': 'O parâmetro "page" deve ser no mínimo 1.',
+  }),
+  limit: Joi.number().integer().min(1).max(100).default(10).messages({
+    'number.min': 'O parâmetro "limit" deve ser no mínimo 1.',
+    'number.max': 'O parâmetro "limit" deve ser no máximo 100.',
+  }),
+});
+
 // DTO de saída.
 function toProjectDTO(project) {
   if (!project) return null;
@@ -28,6 +45,8 @@ function toProjectDTO(project) {
     title: plain.title,
     description: plain.description ?? null,
     repositoryUrl: plain.repositoryUrl,
+    averageRating: plain.averageRating != null ? Number(plain.averageRating) : 0,
+    upvotes: plain.upvotes ?? 0,
     profile: plain.profile
       ? { id: plain.profile.id, name: plain.profile.name, email: plain.profile.email }
       : { id: plain.profileId },
@@ -42,4 +61,4 @@ function toProjectDTO(project) {
   };
 }
 
-module.exports = { createProjectSchema, toProjectDTO };
+module.exports = { createProjectSchema, listProjectsQuerySchema, toProjectDTO };

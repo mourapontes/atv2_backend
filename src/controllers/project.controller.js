@@ -1,26 +1,10 @@
-const projectRepository = require('../repositories/project.repository');
-const profileRepository = require('../repositories/profile.repository');
-const technologyRepository = require('../repositories/technology.repository');
+const projectService = require('../services/project.service');
 const { toProjectDTO } = require('../dtos/project.dto');
-const { HttpError } = require('../middlewares/errorHandler');
+const { toFeedbackDTO } = require('../dtos/feedback.dto');
 
 async function create(req, res, next) {
   try {
-    const { profileId, technologyIds } = req.body;
-
-    const profile = await profileRepository.findById(profileId);
-    if (!profile) {
-      throw new HttpError(400, `Profile com id ${profileId} não encontrado.`);
-    }
-
-    if (technologyIds && technologyIds.length) {
-      const foundTechnologies = await technologyRepository.findByIds(technologyIds);
-      if (foundTechnologies.length !== technologyIds.length) {
-        throw new HttpError(400, 'Uma ou mais tecnologias informadas não existem.');
-      }
-    }
-
-    const project = await projectRepository.create(req.body);
+    const project = await projectService.create(req.body);
     return res.status(201).json(toProjectDTO(project));
   } catch (err) {
     return next(err);
@@ -29,15 +13,38 @@ async function create(req, res, next) {
 
 async function findAll(req, res, next) {
   try {
-    const { profileId } = req.query;
-    const projects = profileId
-      ? await projectRepository.findAllByProfile(profileId)
-      : await projectRepository.findAll();
+    const { profileId, technology, page, limit } = req.query;
+    const { data, pagination } = await projectService.list({ profileId, technology, page, limit });
 
-    return res.status(200).json(projects.map(toProjectDTO));
+    return res.status(200).json({ data: data.map(toProjectDTO), pagination });
   } catch (err) {
     return next(err);
   }
 }
 
-module.exports = { create, findAll };
+async function createFeedback(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { feedback, averageRating } = await projectService.addFeedback(id, req.body);
+
+    return res.status(201).json({
+      feedback: toFeedbackDTO(feedback),
+      projectAverageRating: averageRating,
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function upvote(req, res, next) {
+  try {
+    const { id } = req.params;
+    const project = await projectService.upvote(id);
+
+    return res.status(200).json(toProjectDTO(project));
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { create, findAll, createFeedback, upvote };
