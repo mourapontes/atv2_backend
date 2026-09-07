@@ -355,6 +355,22 @@ fetch('http://localhost:3555/api/technologies', {
 }).then((r) => r.json()).then(console.log);
 ```
 
+### Testando em produção (clique para abrir)
+
+O deploy já está no ar em [https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com). Os links abaixo são endpoints `GET` reais, testados e funcionando — clique para abrir a resposta direto no navegador:
+
+- [Health check — `GET /api`](https://devshowcase-api-xxi4.onrender.com/api)
+- [Swagger UI — documentação interativa](https://devshowcase-api-xxi4.onrender.com/api/docs)
+- [Buscar perfil por id — `GET /api/profiles/2`](https://devshowcase-api-xxi4.onrender.com/api/profiles/2)
+- [Listar tecnologias — `GET /api/technologies`](https://devshowcase-api-xxi4.onrender.com/api/technologies)
+- [Listar projetos — `GET /api/projects`](https://devshowcase-api-xxi4.onrender.com/api/projects)
+- [Listar projetos com filtro por tecnologia e paginação — `GET /api/projects?technology=Node&page=1&limit=5`](https://devshowcase-api-xxi4.onrender.com/api/projects?technology=Node&page=1&limit=5)
+- [Projeto inexistente (exemplo de erro 404) — `GET /api/profiles/999999`](https://devshowcase-api-xxi4.onrender.com/api/profiles/999999)
+
+> Endpoints `POST`/`PUT` (criar perfil, criar tecnologia, criar projeto, registrar feedback, dar upvote) não abrem só com um clique — use o [Swagger UI](https://devshowcase-api-xxi4.onrender.com/api/docs) (botão "Try it out" em cada endpoint) ou os exemplos de `curl` acima, trocando `http://localhost:3555` pela URL de produção.
+>
+> O serviço está no plano Free do Render: se ficar inativo por um tempo, a primeira requisição pode demorar ~30s (cold start) antes de responder.
+
 ## Documentação interativa (Swagger/OpenAPI)
 
 A API expõe sua especificação OpenAPI 3.0 (`src/config/swagger.js`) através do Swagger UI, disponível em:
