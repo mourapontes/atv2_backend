@@ -1,6 +1,13 @@
 # Blueprint do Render (https://render.com/docs/blueprint-spec) para deploy contínuo a partir do GitHub.
-# Ao conectar este repositório no Render (New > Blueprint), o serviço abaixo é criado automaticamente,
-# com deploy automático a cada push na branch configurada.
+# Ao conectar este repositório no Render (New > Blueprint), a API e o PostgreSQL abaixo são criados
+# automaticamente e já conectados entre si, com deploy automático a cada push na branch configurada.
+databases:
+  - name: devshowcase-db
+    databaseName: devshowcase
+    plan: free
+    region: oregon
+    postgresMajorVersion: "17"
+
 services:
   - type: web
     name: devshowcase-api
@@ -17,7 +24,10 @@ services:
         value: production
       - key: DB_SSL
         value: "true"
-      # DATABASE_URL: definida manualmente no dashboard do Render, apontando para o
-      # PostgreSQL provisionado no Supabase ou no Render PostgreSQL (não versionar credenciais).
+      # DATABASE_URL: preenchida automaticamente pelo Render com a connection string do banco
+      # "devshowcase-db" definido acima (fromDatabase). Para usar Supabase em vez do Render
+      # PostgreSQL, troque este bloco por "sync: false" e defina o valor manualmente no dashboard.
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: devshowcase-db
+          property: connectionString

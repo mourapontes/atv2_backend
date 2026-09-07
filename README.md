@@ -390,19 +390,25 @@ Por padrão os testes usam `postgres://postgres:postgres@localhost:5432/devshowc
 
 ## Deploy em produção
 
-### 1. Banco de dados PostgreSQL em nuvem
+O [`render.yaml`](render.yaml) deste repositório é um **Blueprint** do Render que provisiona, em um único passo, a API web e o banco PostgreSQL, já conectados entre si.
 
-Provisione um banco PostgreSQL gratuito em um dos provedores:
-- **[Supabase](https://supabase.com)** — crie um projeto, copie a *Connection string* (modo "Transaction" ou "Session") em Project Settings → Database.
-- **[Render PostgreSQL](https://render.com)** — crie um banco gerenciado (New → PostgreSQL) e copie a *External Connection String*.
-
-Em ambos os casos, guarde a connection string — ela vira a variável `DATABASE_URL` da API. Como esses provedores exigem SSL, defina também `DB_SSL=true`.
-
-### 2. Deploy contínuo no Render (a partir do GitHub)
+### Opção A — Blueprint (API + PostgreSQL do Render, recomendado)
 
 1. Suba este repositório no GitHub (se ainda não estiver lá).
-2. No [Render Dashboard](https://dashboard.render.com), escolha **New → Blueprint** e aponte para o repositório — o arquivo [`render.yaml`](render.yaml) já descreve o serviço web (`buildCommand: npm install`, `startCommand: node src/server.js`) com `autoDeploy: true`, isto é, a cada `git push` na branch configurada o Render refaz o deploy automaticamente.
-   - Alternativamente, crie o serviço manualmente em **New → Web Service**, selecionando o repositório e usando os mesmos comandos de build/start.
+2. No [Render Dashboard](https://dashboard.render.com), escolha **New → Blueprint** e aponte para o repositório. O Render lê o [`render.yaml`](render.yaml) e cria:
+   - o banco `devshowcase-db` (plano Free, região Oregon);
+   - o serviço web `devshowcase-api` (`buildCommand: npm install`, `startCommand: node src/server.js`), com `DATABASE_URL` preenchida automaticamente a partir do banco criado (`fromDatabase`) e `DB_SSL=true`.
+3. `autoDeploy: true` garante que cada `git push` na branch configurada dispara um novo deploy automaticamente.
+4. Ao final do deploy, a API estará disponível em `https://<nome-do-serviço>.onrender.com`, com Swagger UI em `https://<nome-do-serviço>.onrender.com/api/docs`.
+
+### Opção B — Banco no Supabase (ou PostgreSQL do Render criado manualmente)
+
+Use esta opção se preferir manter o banco fora do Render (ex.: Supabase, que não expira após 30 dias no plano gratuito).
+
+1. Provisione um banco PostgreSQL gratuito:
+   - **[Supabase](https://supabase.com)** — crie um projeto, copie a *Connection string* (modo "Transaction" ou "Session") em Project Settings → Database.
+   - **[Render PostgreSQL](https://render.com)** — crie um banco gerenciado (New → PostgreSQL) e copie a *External Connection String*.
+2. Suba este repositório no GitHub e crie o serviço no Render em **New → Web Service** (sem usar o Blueprint), com `buildCommand: npm install` e `startCommand: node src/server.js`.
 3. Configure as variáveis de ambiente de produção no dashboard do serviço (Environment):
 
    | Variável | Valor |
@@ -412,9 +418,8 @@ Em ambos os casos, guarde a connection string — ela vira a variável `DATABASE
    | `DB_SSL` | `true` |
 
    O Render injeta automaticamente a variável `PORT` — o servidor (`src/server.js`) já respeita `process.env.PORT`.
-4. Ao final do deploy, a API estará disponível em `https://<nome-do-serviço>.onrender.com`, com Swagger UI em `https://<nome-do-serviço>.onrender.com/api/docs`.
 
-> Nunca commitar credenciais de banco no repositório — `DATABASE_URL` é sempre configurada como variável de ambiente de produção (`sync: false` no `render.yaml`), definida manualmente no dashboard.
+> Nunca commitar credenciais de banco no repositório. Na Opção A, o Render gerencia a connection string internamente (`fromDatabase`); na Opção B, `DATABASE_URL` é definida manualmente no dashboard.
 
 ## Solução de problemas
 
