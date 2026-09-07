@@ -4,6 +4,10 @@ Backend da plataforma **DevShowcase**.
 
 > **Etapa final do projeto prático:** regras avançadas na camada de serviço, tratamento global de erros, documentação interativa (Swagger/OpenAPI) e deploy em produção.
 
+🔗 **API em produção:** [https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com) · Swagger UI: [https://devshowcase-api-xxi4.onrender.com/api/docs](https://devshowcase-api-xxi4.onrender.com/api/docs)
+
+> Hospedado no plano Free do Render — a primeira requisição após um período de inatividade pode demorar alguns segundos (cold start).
+
 ## Contexto acadêmico
 
 | Item | Detalhe |
@@ -389,6 +393,8 @@ npm test
 Por padrão os testes usam `postgres://postgres:postgres@localhost:5432/devshowcase_test`; defina `TEST_DATABASE_URL` no ambiente para apontar para outro banco.
 
 ## Deploy em produção
+
+🔗 A API já está publicada em produção: **[https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com)** (Swagger UI em [`/api/docs`](https://devshowcase-api-xxi4.onrender.com/api/docs)).
 
 O [`render.yaml`](render.yaml) deste repositório é um **Blueprint** do Render que provisiona, em um único passo, a API web e o banco PostgreSQL, já conectados entre si.
 
