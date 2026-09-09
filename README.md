@@ -4,7 +4,7 @@ Backend da plataforma **DevShowcase**.
 
 > **Etapa final do projeto prático:** regras avançadas na camada de serviço, tratamento global de erros, documentação interativa (Swagger/OpenAPI) e deploy em produção.
 
-🔗 **API em produção:** [https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com) · Swagger UI: [https://devshowcase-api-xxi4.onrender.com/api/docs](https://devshowcase-api-xxi4.onrender.com/api/docs)
+🔗 **API em produção:** [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com) · Swagger UI: [https://devshowcase-api-z5wy.onrender.com/api/docs](https://devshowcase-api-z5wy.onrender.com/api/docs)
 
 > Hospedado no plano Free do Render — a primeira requisição após um período de inatividade pode demorar alguns segundos (cold start).
 
@@ -357,17 +357,17 @@ fetch('http://localhost:3555/api/technologies', {
 
 ### Testando em produção (clique para abrir)
 
-O deploy já está no ar em [https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com). Os links abaixo são endpoints `GET` reais, testados e funcionando — clique para abrir a resposta direto no navegador:
+O deploy já está no ar em [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com). Os links abaixo são endpoints `GET` reais, testados e funcionando — clique para abrir a resposta direto no navegador:
 
-- [Health check — `GET /api`](https://devshowcase-api-xxi4.onrender.com/api)
-- [Swagger UI — documentação interativa](https://devshowcase-api-xxi4.onrender.com/api/docs)
-- [Buscar perfil por id — `GET /api/profiles/2`](https://devshowcase-api-xxi4.onrender.com/api/profiles/2)
-- [Listar tecnologias — `GET /api/technologies`](https://devshowcase-api-xxi4.onrender.com/api/technologies)
-- [Listar projetos — `GET /api/projects`](https://devshowcase-api-xxi4.onrender.com/api/projects)
-- [Listar projetos com filtro por tecnologia e paginação — `GET /api/projects?technology=Node&page=1&limit=5`](https://devshowcase-api-xxi4.onrender.com/api/projects?technology=Node&page=1&limit=5)
-- [Projeto inexistente (exemplo de erro 404) — `GET /api/profiles/999999`](https://devshowcase-api-xxi4.onrender.com/api/profiles/999999)
+- [Health check — `GET /api`](https://devshowcase-api-z5wy.onrender.com/api)
+- [Swagger UI — documentação interativa](https://devshowcase-api-z5wy.onrender.com/api/docs)
+- [Buscar perfil por id — `GET /api/profiles/2`](https://devshowcase-api-z5wy.onrender.com/api/profiles/2)
+- [Listar tecnologias — `GET /api/technologies`](https://devshowcase-api-z5wy.onrender.com/api/technologies)
+- [Listar projetos — `GET /api/projects`](https://devshowcase-api-z5wy.onrender.com/api/projects)
+- [Listar projetos com filtro por tecnologia e paginação — `GET /api/projects?technology=Node&page=1&limit=5`](https://devshowcase-api-z5wy.onrender.com/api/projects?technology=Node&page=1&limit=5)
+- [Projeto inexistente (exemplo de erro 404) — `GET /api/profiles/999999`](https://devshowcase-api-z5wy.onrender.com/api/profiles/999999)
 
-> Endpoints `POST`/`PUT` (criar perfil, criar tecnologia, criar projeto, registrar feedback, dar upvote) não abrem só com um clique — use o [Swagger UI](https://devshowcase-api-xxi4.onrender.com/api/docs) (botão "Try it out" em cada endpoint) ou os exemplos de `curl` acima, trocando `http://localhost:3555` pela URL de produção.
+> Endpoints `POST`/`PUT` (criar perfil, criar tecnologia, criar projeto, registrar feedback, dar upvote) não abrem só com um clique — use o [Swagger UI](https://devshowcase-api-z5wy.onrender.com/api/docs) (botão "Try it out" em cada endpoint) ou os exemplos de `curl` acima, trocando `http://localhost:3555` pela URL de produção.
 >
 > O serviço está no plano Free do Render: se ficar inativo por um tempo, a primeira requisição pode demorar ~30s (cold start) antes de responder.
 
@@ -410,7 +410,7 @@ Por padrão os testes usam `postgres://postgres:postgres@localhost:5432/devshowc
 
 ## Deploy em produção
 
-🔗 A API já está publicada em produção: **[https://devshowcase-api-xxi4.onrender.com](https://devshowcase-api-xxi4.onrender.com)** (Swagger UI em [`/api/docs`](https://devshowcase-api-xxi4.onrender.com/api/docs)).
+🔗 A API já está publicada em produção: **[https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com)** (Swagger UI em [`/api/docs`](https://devshowcase-api-z5wy.onrender.com/api/docs)).
 
 O [`render.yaml`](render.yaml) deste repositório é um **Blueprint** do Render que provisiona, em um único passo, a API web e o banco PostgreSQL, já conectados entre si.
 
