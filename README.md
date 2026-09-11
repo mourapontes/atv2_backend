@@ -31,10 +31,8 @@ Backend da plataforma **DevShowcase**.
 - [Stack tecnológica](#stack-tecnológica)
 - [Modelagem de domínio](#modelagem-de-domínio)
 - [Arquitetura do projeto](#arquitetura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Como rodar localmente](#como-rodar-localmente)
-- [Roteiro de apresentação (demo ao vivo)](#roteiro-de-apresentação-demo-ao-vivo)
 - [Endpoints da API](#endpoints-da-api)
+- [Testando em produção](#testando-em-produção)
 - [Documentação interativa (Swagger/OpenAPI)](#documentação-interativa-swaggeropenapi)
 - [Tratamento global de erros](#tratamento-global-de-erros)
 - [Testes automatizados](#testes-automatizados)
@@ -141,81 +139,6 @@ Dockerfile               # Imagem da API (Node 20)
 docker-compose.yml        # Sobe API + PostgreSQL localmente
 ```
 
-## Pré-requisitos
-
-- Node.js ≥ 18 instalado (`node --version`) — necessário apenas para rodar sem Docker.
-- Uma instância PostgreSQL acessível (local ou remota) e sua connection string — ou Docker + Docker Compose para subir tudo localmente.
-
-## Como rodar localmente
-
-### Opção A — Docker Compose (recomendado)
-
-Sobe a API e o PostgreSQL juntos, sem precisar instalar Node ou Postgres na máquina:
-
-```bash
-git clone <url-do-seu-repositorio>
-cd devshowcase-api
-cp .env.example .env
-docker compose up --build
-```
-
-A API fica disponível em `http://localhost:3555` e o PostgreSQL em `localhost:5432` (usuário/senha `postgres`, bancos `devshowcase` e `devshowcase_test`). Para rodar em segundo plano, use `docker compose up --build -d`; para parar, `docker compose down` (adicione `-v` para apagar também o volume de dados).
-
-> Não rode a imagem isoladamente com `docker run` — o `DATABASE_URL` e as demais variáveis só são injetadas pelo serviço `api` do `docker-compose.yml`. Use sempre `docker compose up`.
-
-### Opção B — Node.js local
-
-```bash
-git clone <url-do-seu-repositorio>
-cd devshowcase-api
-npm install
-cp .env.example .env
-# edite o .env e defina DATABASE_URL com a connection string do seu PostgreSQL
-npm run dev   # ou: npm start
-```
-
-Ao subir, o console deve mostrar:
-
-```
-Conexão com o banco de dados estabelecida com sucesso.
-Modelos sincronizados com o banco de dados.
-DevShowcase API rodando em http://localhost:3555
-```
-
-O banco PostgreSQL precisa existir previamente (ex.: `createdb devshowcase`, ou automaticamente via `docker compose up`); os models são sincronizados automaticamente via `sequelize.sync()` na inicialização. Defina `DATABASE_URL` no `.env` apontando para essa instância.
-
-## Roteiro de apresentação (demo ao vivo)
-
-Para demonstrar a API funcionando, use **dois terminais**:
-
-**Terminal 1 — sobe o servidor e deixe rodando:**
-```bash
-npm run dev
-```
-
-**Terminal 2 — executa a demonstração dos endpoints:**
-```bash
-npm run demo
-```
-
-O script [`scripts/demo.js`](scripts/demo.js) chama, em sequência, **todos os 6 endpoints** exigidos contra o servidor real, organizados em 5 seções, e imprime no console a requisição enviada e a resposta recebida:
-
-1. **Profiles** — `POST /api/profiles` (cria) e `GET /api/profiles/:id` (busca, com `projects: []`)
-2. **Technologies** — `POST /api/technologies` (cria) e `GET /api/technologies` (lista)
-3. **Projects** — `POST /api/projects` (cria vinculando o profile e a technology criados) e `GET /api/projects` (lista)
-4. **Relacionamento Profile 1:N Project** — repete `GET /api/profiles/:id`, agora mostrando o projeto já vinculado em `projects`
-5. **Validação de DTOs** — dois exemplos de erro `400` (perfil sem `name`/com `email` inválido; projeto com `title` vazio, `repositoryUrl` inválida e `profileId` inexistente)
-
-Cada execução gera dados novos (e-mail/nome com timestamp), então o script pode ser rodado várias vezes seguidas sem erro de duplicidade — ideal para repetir a demonstração ao vivo.
-
-Se o servidor não estiver rodando, o script avisa claramente em vez de travar:
-```
-Não foi possível conectar em http://localhost:3555/api.
-Certifique-se de que o servidor está rodando (npm run dev) antes de executar o demo.
-```
-
-**Alternativa visual pelo navegador:** abra [`scripts/demo.html`](scripts/demo.html) diretamente no navegador (duplo clique no arquivo ou `file://.../scripts/demo.html`) e clique em **"Rodar demonstração"**. A página executa a mesma sequência de 5 seções via `fetch`, exibindo cada requisição e resposta na tela — útil para quem preferir mostrar a demo em uma janela do navegador em vez do terminal.
-
 ## Endpoints da API
 
 | Método | Rota                                | Descrição                                                        |
@@ -303,61 +226,15 @@ Resposta:
 
 **PUT /api/projects/:id/upvote** — incrementa em 1 o campo `upvotes` do projeto e retorna o projeto atualizado. Responde `404` se o projeto não existir.
 
-### Testando manualmente com `curl`
+## Testando em produção
 
-```bash
-# Criar perfil
-curl -X POST http://localhost:3555/api/profiles \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Ana Souza","email":"ana@example.com"}'
+O deploy já está no ar em [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com). Todos os exemplos abaixo apontam direto para a API em produção — não é necessário rodar nada localmente.
 
-# Buscar perfil
-curl http://localhost:3555/api/profiles/1
+> O serviço está no plano Free do Render: se ficar inativo por um tempo, a primeira requisição pode demorar ~30s (cold start) antes de responder.
 
-# Criar tecnologia
-curl -X POST http://localhost:3555/api/technologies \
-  -H "Content-Type: application/json" -d '{"name":"Node.js"}'
+### Clique para abrir (endpoints `GET`)
 
-# Listar tecnologias
-curl http://localhost:3555/api/technologies
-
-# Criar projeto
-curl -X POST http://localhost:3555/api/projects \
-  -H "Content-Type: application/json" \
-  -d '{"title":"DevShowcase API","repositoryUrl":"https://github.com/ana/devshowcase","profileId":1,"technologyIds":[1]}'
-
-# Listar projetos (com filtro e paginação)
-curl "http://localhost:3555/api/projects?technology=Node&page=1&limit=10"
-
-# Registrar feedback (nota + comentário) em um projeto
-curl -X POST http://localhost:3555/api/projects/1/feedbacks \
-  -H "Content-Type: application/json" \
-  -d '{"rating":5,"comment":"Excelente projeto!"}'
-
-# Dar upvote em um projeto
-curl -X PUT http://localhost:3555/api/projects/1/upvote
-```
-
-### Testando pelo navegador
-
-A barra de endereço do navegador só faz requisições `GET`, então funciona diretamente para:
-- `http://localhost:3555/api/profiles/1`
-- `http://localhost:3555/api/technologies`
-- `http://localhost:3555/api/projects`
-
-Para testar os endpoints `POST` pelo navegador, abra o **DevTools (F12) → Console** e rode `fetch`:
-
-```js
-fetch('http://localhost:3555/api/technologies', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ name: 'Node.js' }),
-}).then((r) => r.json()).then(console.log);
-```
-
-### Testando em produção (clique para abrir)
-
-O deploy já está no ar em [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com). Os links abaixo são endpoints `GET` reais, testados e funcionando — clique para abrir a resposta direto no navegador:
+Os links abaixo são endpoints `GET` reais, testados e funcionando — clique para abrir a resposta direto no navegador:
 
 - [Health check — `GET /api`](https://devshowcase-api-z5wy.onrender.com/api)
 - [Swagger UI — documentação interativa](https://devshowcase-api-z5wy.onrender.com/api/docs)
@@ -367,17 +244,64 @@ O deploy já está no ar em [https://devshowcase-api-z5wy.onrender.com](https://
 - [Listar projetos com filtro por tecnologia e paginação — `GET /api/projects?technology=Node&page=1&limit=5`](https://devshowcase-api-z5wy.onrender.com/api/projects?technology=Node&page=1&limit=5)
 - [Projeto inexistente (exemplo de erro 404) — `GET /api/profiles/999999`](https://devshowcase-api-z5wy.onrender.com/api/profiles/999999)
 
-> Endpoints `POST`/`PUT` (criar perfil, criar tecnologia, criar projeto, registrar feedback, dar upvote) não abrem só com um clique — use o [Swagger UI](https://devshowcase-api-z5wy.onrender.com/api/docs) (botão "Try it out" em cada endpoint) ou os exemplos de `curl` acima, trocando `http://localhost:3555` pela URL de produção.
->
-> O serviço está no plano Free do Render: se ficar inativo por um tempo, a primeira requisição pode demorar ~30s (cold start) antes de responder.
+### Testando com `curl`
+
+Endpoints `POST`/`PUT` (criar perfil, criar tecnologia, criar projeto, registrar feedback, dar upvote) não abrem só com um clique — use os exemplos de `curl` abaixo, já apontando para a URL de produção:
+
+```bash
+# Criar perfil
+curl -X POST https://devshowcase-api-z5wy.onrender.com/api/profiles \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ana Souza","email":"ana@example.com"}'
+
+# Buscar perfil
+curl https://devshowcase-api-z5wy.onrender.com/api/profiles/1
+
+# Criar tecnologia
+curl -X POST https://devshowcase-api-z5wy.onrender.com/api/technologies \
+  -H "Content-Type: application/json" -d '{"name":"Node.js"}'
+
+# Listar tecnologias
+curl https://devshowcase-api-z5wy.onrender.com/api/technologies
+
+# Criar projeto
+curl -X POST https://devshowcase-api-z5wy.onrender.com/api/projects \
+  -H "Content-Type: application/json" \
+  -d '{"title":"DevShowcase API","repositoryUrl":"https://github.com/ana/devshowcase","profileId":1,"technologyIds":[1]}'
+
+# Listar projetos (com filtro e paginação)
+curl "https://devshowcase-api-z5wy.onrender.com/api/projects?technology=Node&page=1&limit=10"
+
+# Registrar feedback (nota + comentário) em um projeto
+curl -X POST https://devshowcase-api-z5wy.onrender.com/api/projects/1/feedbacks \
+  -H "Content-Type: application/json" \
+  -d '{"rating":5,"comment":"Excelente projeto!"}'
+
+# Dar upvote em um projeto
+curl -X PUT https://devshowcase-api-z5wy.onrender.com/api/projects/1/upvote
+```
+
+### Testando pelo navegador
+
+A barra de endereço do navegador só faz requisições `GET`, então funciona diretamente para os links da seção acima. Para testar os endpoints `POST` pelo navegador, abra o **DevTools (F12) → Console** (em qualquer página) e rode `fetch`:
+
+```js
+fetch('https://devshowcase-api-z5wy.onrender.com/api/technologies', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Node.js' }),
+}).then((r) => r.json()).then(console.log);
+```
+
+### Swagger UI
+
+Ou use o [Swagger UI](https://devshowcase-api-z5wy.onrender.com/api/docs) (botão "Try it out" em cada endpoint) para testar qualquer endpoint, incluindo `POST`/`PUT`, direto pelo navegador — sem precisar montar `curl` ou `fetch` manualmente.
 
 ## Documentação interativa (Swagger/OpenAPI)
 
-A API expõe sua especificação OpenAPI 3.0 (`src/config/swagger.js`) através do Swagger UI, disponível em:
+A API expõe sua especificação OpenAPI 3.0 (`src/config/swagger.js`) através do Swagger UI, disponível em produção em:
 
-```
-http://localhost:3555/api/docs
-```
+[https://devshowcase-api-z5wy.onrender.com/api/docs](https://devshowcase-api-z5wy.onrender.com/api/docs)
 
 Ali é possível visualizar todos os endpoints, schemas de entrada/saída e executar requisições de teste diretamente pelo navegador ("Try it out").
 
