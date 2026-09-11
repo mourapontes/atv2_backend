@@ -4,7 +4,7 @@ Backend da plataforma **DevShowcase**.
 
 > **Etapa final do projeto prático:** regras avançadas na camada de serviço, tratamento global de erros, documentação interativa (Swagger/OpenAPI) e deploy em produção.
 
-🔗 **API em produção:** [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com) · Swagger UI: [https://devshowcase-api-z5wy.onrender.com/api/docs](https://devshowcase-api-z5wy.onrender.com/api/docs)
+🔗 **API em produção:** [https://devshowcase-api-z5wy.onrender.com](https://devshowcase-api-z5wy.onrender.com) · Swagger UI: [https://devshowcase-api-z5wy.onrender.com/api/docs](https://devshowcase-api-z5wy.onrender.com/api/docs) · Formulário de cadastro de usuário: [https://devshowcase-api-z5wy.onrender.com/cadastro.html](https://devshowcase-api-z5wy.onrender.com/cadastro.html)
 
 > Hospedado no plano Free do Render — a primeira requisição após um período de inatividade pode demorar alguns segundos (cold start).
 
@@ -128,9 +128,10 @@ src/
   middlewares/           # Validação de entrada (Joi) e tratamento global de erros
   app.js                 # Configuração do Express (helmet, cors, swagger, error handler)
   server.js              # Ponto de entrada: conecta ao banco e sobe o servidor
+public/
+  cadastro.html          # Formulário HTML de cadastro de usuário (POST /api/profiles), servido como estático pela própria API
 scripts/
   demo.js                # Script de demonstração ao vivo (chama todos os endpoints)
-  demo.html              # Mesma demonstração, executável direto no navegador
   init-multiple-databases.sh  # Cria os bancos dev/test no container do PostgreSQL
 tests/
   *.test.js              # Testes de integração (Jest + Supertest)
@@ -296,6 +297,12 @@ fetch('https://devshowcase-api-z5wy.onrender.com/api/technologies', {
 ### Swagger UI
 
 Ou use o [Swagger UI](https://devshowcase-api-z5wy.onrender.com/api/docs) (botão "Try it out" em cada endpoint) para testar qualquer endpoint, incluindo `POST`/`PUT`, direto pelo navegador — sem precisar montar `curl` ou `fetch` manualmente.
+
+### Formulário de cadastro de usuário
+
+Para quem prefere uma interface em vez de `curl`/Swagger, a própria API serve um formulário HTML estático (`public/cadastro.html`) que cadastra um Profile (`POST /api/profiles`) usando `fetch` contra o mesmo host — já disponível em produção:
+
+🔗 [https://devshowcase-api-z5wy.onrender.com/cadastro.html](https://devshowcase-api-z5wy.onrender.com/cadastro.html)
 
 ## Documentação interativa (Swagger/OpenAPI)
 
